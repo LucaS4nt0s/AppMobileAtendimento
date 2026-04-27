@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="verdePrimaria">#b1d18a</color>
+    <color name="onVerdePrimaria">#1f3701</color>
+    <color name="verdeSecundaria">#bfcbad</color>
+    <color name="onVerdeSecundaria">#2a331e</color>
+    <color name="azulTerciaria">#a0d0cb</color>
+    <color name="onAzulTerciaria">#003735</color>
+    <color name="erro">#ffb4ab</color>
+    <color name="onErro">#690005</color>
+    <color name="superficieDim">#12140e</color>
+    <color name="superficie">#12140e</color>
+    <color name="superficieClara">#e6e1d1</color>
+    <color name="superficieInvertida">#e2e3d8</color>
+    <color name="sombra">#000000</color>
+    <color name="verdeStatus">#24f03c</color>
+</resources>
