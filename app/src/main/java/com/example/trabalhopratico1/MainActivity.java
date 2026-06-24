@@ -2,48 +2,65 @@ package com.example.trabalhopratico1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private Button btnCadastrarDemanda, btnListarChamados, btnFiltrarChamados;
+import com.google.android.material.navigation.NavigationView;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        drawerLayout = findViewById(R.id.drawerLayout);
 
-        btnCadastrarDemanda = findViewById(R.id.btnCadastrarDemanda);
-        btnListarChamados = findViewById(R.id.btnListarChamados);
-        btnFiltrarChamados = findViewById(R.id.btnFiltrarChamados);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        btnCadastrarDemanda.setOnClickListener(this);
-        btnListarChamados.setOnClickListener(this);
-        btnFiltrarChamados.setOnClickListener(this);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
-    public void onClick(View v) {
-        if(v == btnCadastrarDemanda){
+    public boolean onNavigationItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_novo_chamado) {
             startActivity(new Intent(this, CadastrarDemanda.class));
-        }
-        if(v == btnListarChamados){
+        } else if (id == R.id.nav_listagem) {
             startActivity(new Intent(this, ListarChamados.class));
+        } else if (id == R.id.nav_estatisticas) {
+            startActivity(new Intent(this, Estatisticas.class));
+        } else if (id == R.id.nav_sobre) {
+            startActivity(new Intent(this, Sobre.class));
         }
-        if(v == btnFiltrarChamados){
-            startActivity(new Intent(this, FiltrarChamados.class));
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
         }
     }
 }

@@ -2,82 +2,70 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="20dp"
+    android:layout_margin="10dp"
     android:background="@drawable/borda_layout_chamado"
     android:orientation="vertical">
-
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/borda_layout_chamado"
-        android:orientation="vertical"
-        android:padding="15dp">
+        android:orientation="horizontal"
+        android:padding="10dp">
 
-        <TextView
-            android:id="@+id/textViewID"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:text="Número do Chamado"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+        <ImageView
+            android:id="@+id/imageViewThumb"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginEnd="10dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:contentDescription="Foto do chamado" />
 
-        <TextView
-            android:id="@+id/textViewTitulo"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:text="Titulo"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="24sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textViewDescricao"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:text="Descricão"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/textViewLocal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:text="Local"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="16sp" />
+            android:orientation="vertical"
+            android:padding="5dp">
 
-        <TextView
-            android:id="@+id/textViewData"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_weight="1"
-            android:text="Data"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="16sp" />
+            <TextView
+                android:id="@+id/textViewID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nº"
+                android:textColor="@color/verdeSecundaria"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textViewStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginBottom="5dp"
-            android:layout_weight="1"
-            android:text="Status"
-            android:textColor="@color/verdeStatus"
-            android:textSize="16sp" />
+            <TextView
+                android:id="@+id/textViewTitulo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Título"
+                android:textColor="@color/verdeSecundaria"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/textViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Local"
+                android:textColor="@color/verdeSecundaria"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/textViewStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Status"
+                android:textColor="@color/verdeStatus"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

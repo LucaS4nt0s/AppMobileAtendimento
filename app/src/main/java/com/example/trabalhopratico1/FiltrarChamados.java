@@ -1,6 +1,5 @@
 package com.example.trabalhopratico1;
 
-import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.widget.ImageButton;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
@@ -31,17 +30,15 @@ import java.util.List;
 public class FiltrarChamados extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
     private BD bd;
-    private FloatingActionButton floatingActionButton;
     private EditText editTextDate;
     private TextInputLayout textInputLayoutDate;
     private ImageButton btnClearDate;
     private Button btnFiltrar;
-    private String data, estado;
+    private String data;
     private ChipGroup grupoChip;
     private String dataParaBanco = "";
     private List<String> estadosSelecionados = new ArrayList<>();
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +51,13 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
         });
         this.recyclerView = findViewById(R.id.recyclerView);
         bd = new BD(this);
-        this.floatingActionButton = findViewById(R.id.floatingActionButton);
-        floatingActionButton.setOnClickListener(this);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         textInputLayoutDate = findViewById(R.id.textInputLayoutDate);
         editTextDate = findViewById(R.id.editTextDate);
@@ -64,10 +66,9 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
         editTextDate.setFocusable(false);
         editTextDate.setClickable(true);
         editTextDate.setOnClickListener(this);
-        
+
         btnClearDate.setOnClickListener(this);
 
-        // Listener para resetar dataParaBanco quando o campo for limpo
         editTextDate.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -92,8 +93,8 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
                 estadosSelecionados.clear();
                 for(int id : list){
                     if (id == R.id.chip5) estadosSelecionados.add("Aberto");
-                    if (id == R.id.chip6) estadosSelecionados.add("Em Atendimento");
-                    if (id == R.id.chip7) estadosSelecionados.add("Concluido");
+                    if (id == R.id.chip6) estadosSelecionados.add("Em andamento");
+                    if (id == R.id.chip7) estadosSelecionados.add("Conclu\u00EDdo");
                 }
             }
         });
@@ -115,7 +116,6 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
                     FiltrarChamados.this,
                     (view, year1, monthOfYear, dayOfMonth) -> {
                         editTextDate.setText(String.format("%02d/%02d/%04d", dayOfMonth, monthOfYear + 1, year1));
-
                         dataParaBanco = String.format("%04d-%02d-%02d", year1, monthOfYear + 1, dayOfMonth);
                     },
                     year,
@@ -124,84 +124,35 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
             );
             datePickerDialog.show();
         }
-        if(v == floatingActionButton){
-            bd.close();
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-        }
         if(v == btnFiltrar){
             this.data = dataParaBanco;
             List<String> estados = estadosSelecionados;
 
+            ArrayList<Demandas> lista;
 
             if(this.data.isEmpty() && estados.isEmpty()){
-                ArrayList<Demandas> lista = bd.getDemandas();
-                Adaptador adaptador = new Adaptador(lista);
-                adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        Demandas d = lista.get(position);
-                        Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
-                        intent.putExtra("id", d.getId());
-                        startActivity(intent);
-                    }
-                });
-                recyclerView.setAdapter(adaptador);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
+                lista = bd.getDemandas();
+            } else if(!this.data.isEmpty() && !estados.isEmpty()){
+                lista = bd.getDemandasFiltradasPorDataEstado(this.data, estados);
+            } else if(!this.data.isEmpty()){
+                lista = bd.getDemandasFiltradasPorData(this.data);
+            } else {
+                lista = bd.getDemandasFiltradasPorEstado(estados);
             }
 
-            if(!this.data.isEmpty() && !estados.isEmpty()) {
-                ArrayList<Demandas> lista = bd.getDemandasFiltradasPorDataEstado(this.data, estados);
-                Adaptador adaptador = new Adaptador(lista);
-                adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        Demandas d = lista.get(position);
-                        Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
-                        intent.putExtra("id", d.getId());
-                        startActivity(intent);
-                    }
-                });
-                recyclerView.setAdapter(adaptador);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            }
-
-            if(!this.data.isEmpty() && estados.isEmpty()) {
-                ArrayList<Demandas> lista = bd.getDemandasFiltradasPorData(this.data);
-                Adaptador adaptador = new Adaptador(lista);
-                adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        Demandas d = lista.get(position);
-                        Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
-                        intent.putExtra("id", d.getId());
-                        startActivity(intent);
-                    }
-                });
-                recyclerView.setAdapter(adaptador);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            }
-
-            if(this.data.isEmpty() && !estados.isEmpty()) {
-                ArrayList<Demandas> lista = bd.getDemandasFiltradasPorEstado(estados);
-                Adaptador adaptador = new Adaptador(lista);
-                adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(int position) {
-                        Demandas d = lista.get(position);
-                        Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
-                        intent.putExtra("id", d.getId());
-                        startActivity(intent);
-                    }
-                });
-                recyclerView.setAdapter(adaptador);
-                recyclerView.setHasFixedSize(true);
-                recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            }
-
+            Adaptador adaptador = new Adaptador(lista);
+            adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position) {
+                    Demandas d = lista.get(position);
+                    Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
+                    intent.putExtra("id", d.getId());
+                    startActivity(intent);
+                }
+            });
+            recyclerView.setAdapter(adaptador);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
         }
     }
 

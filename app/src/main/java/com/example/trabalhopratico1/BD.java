@@ -14,14 +14,10 @@ import java.util.List;
 
 public class BD extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "banco_demandas.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public BD(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-    }
-
-    public BD(@Nullable Context context, @Nullable String name, @Nullable SQLiteDatabase.CursorFactory factory, int version) {
-        super(context, name, factory, version);
     }
 
     @Override
@@ -33,57 +29,53 @@ public class BD extends SQLiteOpenHelper {
                         "date DATE DEFAULT CURRENT_DATE," +
                         "descricao TEXT," +
                         "local TEXT," +
-                        "estado TEXT CHECK(estado IN ('Aberto','Em Atendimento','Concluido')) DEFAULT 'Aberto'," +
-                        "tipo TEXT CHECK(tipo IN ('Infraestrutura','TI'))," +
-                        "solucao TEXT" +
+                        "estado TEXT CHECK(estado IN ('Aberto','Em andamento','Conclu\u00EDdo')) DEFAULT 'Aberto'," +
+                        "tipo TEXT," +
+                        "solucao TEXT," +
+                        "imagePath TEXT" +
                         ")"
         );
 
         Log.i("##", "Tabela demandas criada com sucesso");
     }
 
-    public void salvarDados(String titulo, String descricao, String local, String tipo){
+    public long salvarDados(String titulo, String descricao, String local, String estado, String imagePath){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("titulo", titulo);
         values.put("descricao", descricao);
         values.put("local", local);
-        values.put("tipo", tipo);
-        db.insert("demandas", null, values);
+        values.put("estado", estado);
+        values.put("imagePath", imagePath);
+        long id = db.insert("demandas", null, values);
         db.close();
-        Log.i("##", "Dados inseridos com sucesso");
+        Log.i("##", "Dados inseridos com sucesso, id=" + id);
+        return id;
     }
 
-    public void salvarDados(String titulo, String descricao, String local, String tipo, String data){
+    public long salvarDados(String titulo, String descricao, String local, String estado, String imagePath, String data){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("titulo", titulo);
         values.put("descricao", descricao);
         values.put("local", local);
-        values.put("tipo", tipo);
+        values.put("estado", estado);
+        values.put("imagePath", imagePath);
         values.put("date", data);
-        db.insert("demandas", null, values);
+        long id = db.insert("demandas", null, values);
         db.close();
-        Log.i("##", "Dados inseridos com sucesso");
+        Log.i("##", "Dados inseridos com sucesso, id=" + id);
+        return id;
     }
 
     public ArrayList<Demandas> getDemandas(){
         ArrayList<Demandas> demandas = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.query("demandas", null, null, null, null, null, null);
+        Cursor cursor = db.query("demandas", null, null, null, null, null, "_id DESC");
 
         if(cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
-                String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
-                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
-                String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
-                String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
-                String tipo = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
-                Demandas demanda = new Demandas(id, titulo, date, descricao, local, tipo, estado, solucao);
-                demandas.add(demanda);
+                demandas.add(cursorToDemanda(cursor));
             } while (cursor.moveToNext());
         }
 
@@ -97,14 +89,7 @@ public class BD extends SQLiteOpenHelper {
         Cursor cursor = db.query("demandas", null, "_id = ?", new String[]{String.valueOf(id)}, null, null, null);
 
         if(cursor.moveToFirst()) {
-            String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
-            String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
-            String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
-            String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
-            String tipo = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
-            String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-            String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
-            Demandas demanda = new Demandas(id, titulo, date, descricao, local, tipo, estado, solucao);
+            Demandas demanda = cursorToDemanda(cursor);
             cursor.close();
             db.close();
             return demanda;
@@ -127,16 +112,7 @@ public class BD extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query.toString(), null);
         if(cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
-                String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
-                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
-                String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
-                String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
-                String tipoDemanda = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
-                Demandas demanda = new Demandas(id, titulo, date, descricao, local, tipoDemanda, estado, solucao);
-                demandas.add(demanda);
+                demandas.add(cursorToDemanda(cursor));
             } while (cursor.moveToNext());
         }
 
@@ -151,16 +127,7 @@ public class BD extends SQLiteOpenHelper {
         Cursor cursor = db.query("demandas", null, "date = ?", new String[]{data}, null, null, null);
         if(cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
-                String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
-                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
-                String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
-                String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
-                String tipoDemanda = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
-                Demandas demanda = new Demandas(id, titulo, date, descricao, local, tipoDemanda, estado, solucao);
-                demandas.add(demanda);
+                demandas.add(cursorToDemanda(cursor));
             } while (cursor.moveToNext());
         }
 
@@ -181,16 +148,7 @@ public class BD extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query.toString(), new String[]{data});
         if(cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
-                String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
-                String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
-                String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
-                String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
-                String tipoDemanda = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
-                String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
-                String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
-                Demandas demanda = new Demandas(id, titulo, date, descricao, local, tipoDemanda, estado, solucao);
-                demandas.add(demanda);
+                demandas.add(cursorToDemanda(cursor));
             } while (cursor.moveToNext());
         }
 
@@ -230,10 +188,66 @@ public class BD extends SQLiteOpenHelper {
         db.close();
     }
 
+    public int getTotalChamados() {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM demandas", null);
+        int total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return total;
+    }
+
+    public int getChamadosPorEstado(String estado) {
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM demandas WHERE estado = ?", new String[]{estado});
+        int total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return total;
+    }
+
+    private Demandas cursorToDemanda(Cursor cursor) {
+        int id = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
+        String titulo = cursor.getString(cursor.getColumnIndexOrThrow("titulo"));
+        String date = cursor.getString(cursor.getColumnIndexOrThrow("date"));
+        String descricao = cursor.getString(cursor.getColumnIndexOrThrow("descricao"));
+        String local = cursor.getString(cursor.getColumnIndexOrThrow("local"));
+        String tipo = cursor.getString(cursor.getColumnIndexOrThrow("tipo"));
+        String estado = cursor.getString(cursor.getColumnIndexOrThrow("estado"));
+        String solucao = cursor.getString(cursor.getColumnIndexOrThrow("solucao"));
+        String imagePath = cursor.getString(cursor.getColumnIndexOrThrow("imagePath"));
+        return new Demandas(id, titulo, date, descricao, local, tipo, estado, solucao, imagePath);
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE demandas ADD COLUMN solucao TEXT");
+        }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE demandas ADD COLUMN imagePath TEXT");
+            db.execSQL("CREATE TABLE IF NOT EXISTS demandas_nova(" +
+                    "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "titulo TEXT," +
+                    "date DATE DEFAULT CURRENT_DATE," +
+                    "descricao TEXT," +
+                    "local TEXT," +
+                    "estado TEXT CHECK(estado IN ('Aberto','Em andamento','Conclu\u00EDdo')) DEFAULT 'Aberto'," +
+                    "tipo TEXT," +
+                    "solucao TEXT," +
+                    "imagePath TEXT" +
+                    ")");
+            db.execSQL("INSERT INTO demandas_nova SELECT _id, titulo, date, descricao, local, " +
+                    "CASE estado WHEN 'Em Atendimento' THEN 'Em andamento' WHEN 'Concluido' THEN 'Conclu\u00EDdo' ELSE estado END, " +
+                    "tipo, solucao, imagePath FROM demandas");
+            db.execSQL("DROP TABLE demandas");
+            db.execSQL("ALTER TABLE demandas_nova RENAME TO demandas");
         }
     }
 }

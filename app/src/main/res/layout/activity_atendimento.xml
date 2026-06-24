@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -9,133 +9,171 @@
     android:orientation="vertical"
     tools:context=".Atendimento">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/onVerdePrimaria"
+        app:title="Atendimento"
+        app:titleTextColor="@color/verdeSecundaria"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationContentDescription="Voltar" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingTop="10dp"
-            android:text="Atendimento"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:background="@drawable/borda_layout_chamado"
             android:orientation="vertical"
-            android:padding="15dp">
+            android:padding="16dp">
 
-            <TextView
-                android:id="@+id/textView6"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Descreva a Solução"
-                android:textColor="@color/verdeSecundaria"
-                android:textSize="18sp" />
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/borda_layout_chamado"
+                android:orientation="vertical"
+                android:padding="15dp">
 
-            <EditText
-                android:id="@+id/editTextSolucao"
+                <TextView
+                    android:id="@+id/txtDetalheTitulo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Título"
+                    android:textColor="@color/verdeSecundaria"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txtDetalheDescricao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Descrição"
+                    android:textColor="@color/verdeSecundaria"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/txtDetalheLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Local"
+                    android:textColor="@color/verdePrimaria"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/txtDetalheStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Status"
+                    android:textColor="@color/verdeStatus"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/imageViewFoto"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="10dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="Foto do chamado" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@null"
-                android:ems="10"
-                android:gravity="start|top"
-                android:hint="Como foi resolvido?"
-                android:inputType="textMultiLine"
-                android:minLines="5"
-                android:textColor="@color/verdePrimaria"
-                android:textColorHint="@color/verdePrimaria"
-                android:textSize="14sp" />
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/borda_layout_chamado"
+                android:orientation="vertical"
+                android:padding="15dp">
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Descreva a Solução"
+                    android:textColor="@color/verdeSecundaria"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/editTextSolucao"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:background="@null"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="Como foi resolvido?"
+                    android:inputType="textMultiLine"
+                    android:minLines="5"
+                    android:textColor="@color/verdePrimaria"
+                    android:textColorHint="@color/verdePrimaria"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Alterar Estado do Chamado"
+                    android:textColor="@color/verdePrimaria" />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/grupoChip3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip8"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Aberto"
+                        android:textColor="@color/chip_text_selector"
+                        app:chipBackgroundColor="@color/chip_background_selector" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip9"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Em andamento"
+                        android:textColor="@color/chip_text_selector"
+                        app:chipBackgroundColor="@color/chip_background_selector" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip10"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checkable="true"
+                        android:text="Concluído"
+                        android:textColor="@color/chip_text_selector"
+                        app:chipBackgroundColor="@color/chip_background_selector" />
+                </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnAlterarChamado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/onVerdePrimaria"
+                android:text="Alterar chamado"
+                android:textColor="@color/verdeSecundaria" />
         </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView7"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="Alterar Estado do Chamado"
-                android:textColor="@color/verdePrimaria" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/grupoChip3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                app:selectionRequired="true"
-                app:singleSelection="true">
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip8"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="Aberto"
-                    android:textColor="@color/chip_text_selector"
-                    app:chipBackgroundColor="@color/chip_background_selector" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip9"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Em atendimento"
-                    android:textColor="@color/chip_text_selector"
-                    app:chipBackgroundColor="@color/chip_background_selector" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chip10"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Concluido"
-                    android:textColor="@color/chip_text_selector"
-                    app:chipBackgroundColor="@color/chip_background_selector" />
-            </com.google.android.material.chip.ChipGroup>
-
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/btnAlterarChamado"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:backgroundTint="@color/onVerdePrimaria"
-            android:text="Alterar chamado"
-            android:textColor="@color/verdeSecundaria" />
-
-    </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:backgroundTint="@color/verdeSecundaria"
-        app:srcCompat="@drawable/undo_48px"
-        app:tint="@color/onVerdeSecundaria" />
-</FrameLayout>
+    </ScrollView>
+</LinearLayout>

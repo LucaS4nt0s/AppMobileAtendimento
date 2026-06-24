@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -9,37 +9,19 @@
     android:orientation="vertical"
     tools:context=".ListarChamados">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/onVerdePrimaria"
+        app:title="Listagem de Chamados"
+        app:titleTextColor="@color/verdeSecundaria"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        app:navigationContentDescription="Voltar" />
 
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingLeft="30dp"
-            android:text="Chamados"
-            android:textColor="@color/verdeSecundaria"
-            android:textSize="34sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end|bottom"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:focusable="true"
-        app:backgroundTint="@color/verdeSecundaria"
-        app:srcCompat="@drawable/undo_48px"
-        app:tint="@color/onVerdeSecundaria" />
-</FrameLayout>
+        android:layout_marginTop="8dp" />
+</LinearLayout>
