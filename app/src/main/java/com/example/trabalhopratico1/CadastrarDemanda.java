@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.app.ProgressDialog;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -202,14 +203,15 @@ public class CadastrarDemanda extends AppCompatActivity implements View.OnClickL
         long id = bd.salvarDados(titulo, descricao, local, statusSelecionado, currentPhotoPath);
         bd.close();
 
-        salvarNoBack4App(titulo, descricao, local, statusSelecionado, currentPhotoPath, id);
-
-        Toast.makeText(this, "Chamado cadastrado com sucesso", Toast.LENGTH_SHORT).show();
-
-        finish();
+        salvarNoBack4App(titulo, descricao, local, statusSelecionado, currentPhotoPath, (int) id);
     }
 
-    private void salvarNoBack4App(String titulo, String descricao, String local, String estado, String imagePath, long idLocal) {
+    private void salvarNoBack4App(String titulo, String descricao, String local, String estado, String imagePath, int idLocal) {
+        ProgressDialog progress = new ProgressDialog(this);
+        progress.setMessage("Salvando chamado...");
+        progress.setCancelable(false);
+        progress.show();
+
         com.parse.ParseObject chamado = new com.parse.ParseObject("Chamado");
         chamado.put("titulo", titulo);
         chamado.put("descricao", descricao);
@@ -231,11 +233,17 @@ public class CadastrarDemanda extends AppCompatActivity implements View.OnClickL
         }
 
         chamado.saveInBackground(e -> {
-            if (e == null) {
-                android.util.Log.i("Back4App", "Chamado salvo na nuvem com sucesso");
-            } else {
-                android.util.Log.e("Back4App", "Erro ao salvar na nuvem", e);
-            }
+            runOnUiThread(() -> {
+                progress.dismiss();
+                if (e == null) {
+                    android.util.Log.i("Back4App", "Chamado salvo na nuvem com sucesso");
+                    Toast.makeText(this, "Chamado cadastrado com sucesso", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    android.util.Log.e("Back4App", "Erro ao salvar na nuvem", e);
+                    Toast.makeText(this, "Erro ao salvar na nuvem: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
         });
     }
 }

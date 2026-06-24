@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class Adaptador extends RecyclerView.Adapter<RecyHolder>{
@@ -45,15 +44,17 @@ public class Adaptador extends RecyclerView.Adapter<RecyHolder>{
         holder.textViewLocal.setText(demanda.getLocal());
         holder.textViewStatus.setText(demanda.getEstado());
 
-        String imagePath = demanda.getImagePath();
-        if (imagePath != null && !imagePath.isEmpty()) {
-            File imgFile = new File(imagePath);
-            if (imgFile.exists()) {
-                Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        String fotoString = demanda.getImagePath();
+        if (fotoString != null && !fotoString.isEmpty()) {
+            try {
+                byte[] bytes = android.util.Base64.decode(fotoString, android.util.Base64.DEFAULT);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 if (bitmap != null) {
                     holder.imageViewThumb.setVisibility(View.VISIBLE);
                     holder.imageViewThumb.setImageBitmap(bitmap);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 

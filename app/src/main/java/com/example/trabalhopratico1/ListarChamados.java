@@ -1,9 +1,9 @@
 package com.example.trabalhopratico1;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +18,8 @@ import java.util.ArrayList;
 
 public class ListarChamados extends AppCompatActivity {
     private RecyclerView recyclerView;
-    private BD bd;
+    private ArrayList<Demandas> demandas;
+    private ProgressDialog progressDialog;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -40,28 +41,38 @@ public class ListarChamados extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         this.recyclerView = findViewById(R.id.recyclerView);
-        bd = new BD(this);
 
-        ArrayList<Demandas> demandas = bd.getDemandas();
-        Adaptador adaptador = new Adaptador(demandas);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Carregando chamados...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        adaptador.setOnItemClickListener(position -> {
-            Demandas demanda = demandas.get(position);
-            Intent intent = new Intent(ListarChamados.this, Atendimento.class);
-            intent.putExtra("id", demanda.getId());
-            startActivity(intent);
+        Back4AppHelper.getDemandas(new Back4AppHelper.Callback<ArrayList<Demandas>>() {
+            @Override
+            public void onSuccess(ArrayList<Demandas> result) {
+                progressDialog.dismiss();
+                demandas = result;
+                Adaptador adaptador = new Adaptador(demandas);
+
+                adaptador.setOnItemClickListener(position -> {
+                    Demandas demanda = demandas.get(position);
+                    Intent intent = new Intent(ListarChamados.this, Atendimento.class);
+                    intent.putExtra("parseObjectId", demanda.getParseObjectId());
+                    startActivity(intent);
+                });
+
+                recyclerView.setAdapter(adaptador);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.setLayoutManager(new LinearLayoutManager(ListarChamados.this));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+                android.widget.Toast.makeText(ListarChamados.this,
+                        "Erro ao carregar chamados: " + e.getMessage(),
+                        android.widget.Toast.LENGTH_LONG).show();
+            }
         });
-
-        recyclerView.setAdapter(adaptador);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
-        }
     }
 }

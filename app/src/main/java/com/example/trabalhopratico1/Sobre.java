@@ -35,8 +35,5 @@ public class Sobre extends AppCompatActivity {
 
         txtIntegrantes = findViewById(R.id.txtIntegrantes);
         txtTurma = findViewById(R.id.txtTurma);
-
-        txtIntegrantes.setText("[Nome dos integrantes do grupo]");
-        txtTurma.setText("[Turma]");
     }
 }

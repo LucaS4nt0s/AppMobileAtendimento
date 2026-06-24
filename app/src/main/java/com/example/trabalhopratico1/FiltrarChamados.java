@@ -1,6 +1,7 @@
 package com.example.trabalhopratico1;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -29,15 +31,14 @@ import java.util.List;
 
 public class FiltrarChamados extends AppCompatActivity implements View.OnClickListener {
     private RecyclerView recyclerView;
-    private BD bd;
     private EditText editTextDate;
     private TextInputLayout textInputLayoutDate;
     private ImageButton btnClearDate;
     private Button btnFiltrar;
-    private String data;
     private ChipGroup grupoChip;
     private String dataParaBanco = "";
     private List<String> estadosSelecionados = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,6 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
             return insets;
         });
         this.recyclerView = findViewById(R.id.recyclerView);
-        bd = new BD(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -125,42 +125,47 @@ public class FiltrarChamados extends AppCompatActivity implements View.OnClickLi
             datePickerDialog.show();
         }
         if(v == btnFiltrar){
-            this.data = dataParaBanco;
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Filtrando chamados...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            Back4AppHelper.Callback<ArrayList<Demandas>> callback = new Back4AppHelper.Callback<ArrayList<Demandas>>() {
+                @Override
+                public void onSuccess(ArrayList<Demandas> lista) {
+                    progressDialog.dismiss();
+                    Adaptador adaptador = new Adaptador(lista);
+                    adaptador.setOnItemClickListener(position -> {
+                        Demandas d = lista.get(position);
+                        Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
+                        intent.putExtra("parseObjectId", d.getParseObjectId());
+                        startActivity(intent);
+                    });
+                    recyclerView.setAdapter(adaptador);
+                    recyclerView.setHasFixedSize(true);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(FiltrarChamados.this));
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(FiltrarChamados.this,
+                            "Erro ao filtrar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            };
+
+            String data = dataParaBanco;
             List<String> estados = estadosSelecionados;
 
-            ArrayList<Demandas> lista;
-
-            if(this.data.isEmpty() && estados.isEmpty()){
-                lista = bd.getDemandas();
-            } else if(!this.data.isEmpty() && !estados.isEmpty()){
-                lista = bd.getDemandasFiltradasPorDataEstado(this.data, estados);
-            } else if(!this.data.isEmpty()){
-                lista = bd.getDemandasFiltradasPorData(this.data);
+            if (data.isEmpty() && estados.isEmpty()) {
+                Back4AppHelper.getDemandas(callback);
+            } else if (!data.isEmpty() && !estados.isEmpty()) {
+                Back4AppHelper.getDemandasFiltradasPorDataEstado(data, estados, callback);
+            } else if (!data.isEmpty()) {
+                Back4AppHelper.getDemandasFiltradasPorData(data, callback);
             } else {
-                lista = bd.getDemandasFiltradasPorEstado(estados);
+                Back4AppHelper.getDemandasFiltradasPorEstado(estados, callback);
             }
-
-            Adaptador adaptador = new Adaptador(lista);
-            adaptador.setOnItemClickListener(new Adaptador.OnItemClickListener() {
-                @Override
-                public void onItemClick(int position) {
-                    Demandas d = lista.get(position);
-                    Intent intent = new Intent(FiltrarChamados.this, Atendimento.class);
-                    intent.putExtra("id", d.getId());
-                    startActivity(intent);
-                }
-            });
-            recyclerView.setAdapter(adaptador);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
         }
     }
 }

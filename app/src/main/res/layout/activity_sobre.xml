@@ -78,7 +78,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="[Nome dos integrantes]"
+                    android:text="Luca Samuel dos Santos"
                     android:textColor="@color/verdeSecundaria"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -104,7 +104,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
-                    android:text="[Turma]"
+                    android:text="7 Período"
                     android:textColor="@color/verdeSecundaria"
                     android:textSize="16sp" />
             </LinearLayout>

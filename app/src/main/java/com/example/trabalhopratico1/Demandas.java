@@ -1,7 +1,7 @@
 package com.example.trabalhopratico1;
 
 public class Demandas {
-    private String titulo, date, descricao, local, tipo, estado, solucao, imagePath;
+    private String titulo, date, descricao, local, tipo, estado, solucao, imagePath, parseObjectId;
     private int id;
 
     public Demandas(int id, String titulo, String date, String descricao, String local, String tipo, String estado, String solucao, String imagePath){
@@ -16,8 +16,22 @@ public class Demandas {
         this.imagePath = imagePath;
     }
 
+    public Demandas(String parseObjectId, String titulo, String date, String descricao, String local, String tipo, String estado, String solucao, String imagePath){
+        this.parseObjectId = parseObjectId;
+        this.titulo = titulo;
+        this.date = date;
+        this.descricao = descricao;
+        this.local = local;
+        this.tipo = tipo;
+        this.estado = estado;
+        this.solucao = solucao;
+        this.imagePath = imagePath;
+    }
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
+    public String getParseObjectId() { return parseObjectId; }
+    public void setParseObjectId(String parseObjectId) { this.parseObjectId = parseObjectId; }
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
     public String getDate() { return date; }

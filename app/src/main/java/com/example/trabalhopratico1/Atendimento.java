@@ -1,6 +1,7 @@
 package com.example.trabalhopratico1;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
@@ -23,11 +23,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.chip.ChipGroup;
 
 import java.io.File;
-import java.util.List;
 
 public class Atendimento extends AppCompatActivity implements View.OnClickListener {
-    private BD bd;
-    private int id;
+    private String parseObjectId;
     private ChipGroup grupoChip;
     private Button btnAlterarChamado;
     private EditText editTextSolucao;
@@ -36,6 +34,7 @@ public class Atendimento extends AppCompatActivity implements View.OnClickListen
     private String solucao = "";
     private String estadoSelecionado = "";
     private String estadoDoChamado;
+    private ProgressDialog progressDialog;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -57,7 +56,7 @@ public class Atendimento extends AppCompatActivity implements View.OnClickListen
         toolbar.setNavigationOnClickListener(v -> finish());
 
         Intent intent = getIntent();
-        id = intent.getIntExtra("id", -1);
+        parseObjectId = intent.getStringExtra("parseObjectId");
 
         txtTitulo = findViewById(R.id.txtDetalheTitulo);
         txtDescricao = findViewById(R.id.txtDetalheDescricao);
@@ -81,28 +80,48 @@ public class Atendimento extends AppCompatActivity implements View.OnClickListen
         btnAlterarChamado = findViewById(R.id.btnAlterarChamado);
         btnAlterarChamado.setOnClickListener(this);
 
-        bd = new BD(this);
-        Demandas demanda = bd.getDemanda(id);
-        if (demanda != null) {
-            estadoDoChamado = demanda.getEstado();
-            txtTitulo.setText(demanda.getTitulo());
-            txtDescricao.setText(demanda.getDescricao());
-            txtLocal.setText(demanda.getLocal());
-            txtStatus.setText(demanda.getEstado());
-            editTextSolucao.setText(demanda.getSolucao());
+        carregarDemanda();
+    }
 
-            String imagePath = demanda.getImagePath();
-            if (imagePath != null && !imagePath.isEmpty()) {
-                File imgFile = new File(imagePath);
-                if (imgFile.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-                    if (bitmap != null) {
-                        imageViewFoto.setVisibility(View.VISIBLE);
-                        imageViewFoto.setImageBitmap(bitmap);
+    private void carregarDemanda() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Carregando chamado...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        Back4AppHelper.getDemanda(parseObjectId, new Back4AppHelper.Callback<Demandas>() {
+            @Override
+            public void onSuccess(Demandas demanda) {
+                progressDialog.dismiss();
+                estadoDoChamado = demanda.getEstado();
+                txtTitulo.setText(demanda.getTitulo());
+                txtDescricao.setText(demanda.getDescricao());
+                txtLocal.setText(demanda.getLocal());
+                txtStatus.setText(demanda.getEstado());
+                editTextSolucao.setText(demanda.getSolucao());
+
+                String fotoString = demanda.getImagePath();
+                if (fotoString != null && !fotoString.isEmpty()) {
+                    try {
+                        byte[] bytes = android.util.Base64.decode(fotoString, android.util.Base64.DEFAULT);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        if (bitmap != null) {
+                            imageViewFoto.setVisibility(View.VISIBLE);
+                            imageViewFoto.setImageBitmap(bitmap);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
             }
-        }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+                Toast.makeText(Atendimento.this,
+                        "Erro ao carregar chamado: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -123,24 +142,35 @@ public class Atendimento extends AppCompatActivity implements View.OnClickListen
                 return;
             }
 
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("Salvando alterações...");
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+
+            Back4AppHelper.Callback<Void> callback = new Back4AppHelper.Callback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    progressDialog.dismiss();
+                    Toast.makeText(Atendimento.this,
+                            "Chamado atualizado com sucesso", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    progressDialog.dismiss();
+                    Toast.makeText(Atendimento.this,
+                            "Erro ao atualizar: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            };
+
             if (!estadoSelecionado.equals(estadoDoChamado) && !solucao.isEmpty()) {
-                bd.atualizarEstadoSolucaoDemanda(id, estadoSelecionado, solucao);
+                Back4AppHelper.atualizarEstadoSolucaoDemanda(parseObjectId, estadoSelecionado, solucao, callback);
             } else if (!estadoSelecionado.equals(estadoDoChamado)) {
-                bd.atualizarEstadoDemanda(id, estadoSelecionado);
+                Back4AppHelper.atualizarEstadoDemanda(parseObjectId, estadoSelecionado, callback);
             } else if (!solucao.isEmpty()) {
-                bd.atualizarSolucaoDemanda(id, solucao);
+                Back4AppHelper.atualizarEstadoSolucaoDemanda(parseObjectId, estadoDoChamado, solucao, callback);
             }
-
-            bd.close();
-            finish();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
         }
     }
 }

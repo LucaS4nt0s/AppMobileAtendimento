@@ -1,7 +1,9 @@
 package com.example.trabalhopratico1;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,7 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class Estatisticas extends AppCompatActivity {
 
     private TextView txtTotal, txtAbertos, txtAndamento, txtConcluidos;
-    private BD bd;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,28 +41,73 @@ public class Estatisticas extends AppCompatActivity {
         txtAndamento = findViewById(R.id.txtAndamento);
         txtConcluidos = findViewById(R.id.txtConcluidos);
 
-        bd = new BD(this);
-
         carregarEstatisticas();
     }
 
     private void carregarEstatisticas() {
-        int total = bd.getTotalChamados();
-        int abertos = bd.getChamadosPorEstado("Aberto");
-        int andamento = bd.getChamadosPorEstado("Em andamento");
-        int concluidos = bd.getChamadosPorEstado("Conclu\u00EDdo");
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Carregando estatísticas...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
 
-        txtTotal.setText(String.valueOf(total));
-        txtAbertos.setText(String.valueOf(abertos));
-        txtAndamento.setText(String.valueOf(andamento));
-        txtConcluidos.setText(String.valueOf(concluidos));
+        Back4AppHelper.getTotalChamados(new Back4AppHelper.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer total) {
+                txtTotal.setText(String.valueOf(total));
+                carregarAbertos();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+                Toast.makeText(Estatisticas.this,
+                        "Erro ao carregar estatísticas", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (bd != null) {
-            bd.close();
-        }
+    private void carregarAbertos() {
+        Back4AppHelper.getChamadosPorEstado("Aberto", new Back4AppHelper.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer abertos) {
+                txtAbertos.setText(String.valueOf(abertos));
+                carregarAndamento();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+            }
+        });
+    }
+
+    private void carregarAndamento() {
+        Back4AppHelper.getChamadosPorEstado("Em andamento", new Back4AppHelper.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer andamento) {
+                txtAndamento.setText(String.valueOf(andamento));
+                carregarConcluidos();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+            }
+        });
+    }
+
+    private void carregarConcluidos() {
+        Back4AppHelper.getChamadosPorEstado("Conclu\u00EDdo", new Back4AppHelper.Callback<Integer>() {
+            @Override
+            public void onSuccess(Integer concluidos) {
+                progressDialog.dismiss();
+                txtConcluidos.setText(String.valueOf(concluidos));
+            }
+
+            @Override
+            public void onError(Exception e) {
+                progressDialog.dismiss();
+            }
+        });
     }
 }
